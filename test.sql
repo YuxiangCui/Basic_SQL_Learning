@@ -51,6 +51,17 @@ CREATE TABLE [dbo].[Customers]
  [DateOfBirth][date] NOT NULL,
  [YearOfBirth][int] NOT NULL,
  [Email] [nvarchar](50) NOT NULL,
+ [Country] [nvarchar](50) NOT NULL,
+
+ PRIMARY KEY CLUSTERED ([CustId] ASC) ON [PRIMARY]
+);
+GO
+
+CREATE TABLE [dbo].[Customers_addinfo]
+(
+ [CustId] [int] NOT NULL,
+ [Country] [nvarchar](50) NOT NULL,
+ [City] [nvarchar](50) NOT NULL,
 
  PRIMARY KEY CLUSTERED ([CustId] ASC) ON [PRIMARY]
 );
@@ -63,14 +74,23 @@ GO
 
 -- ####### 插入数据
 -- Insert sample data into table
-INSERT INTO [dbo].[Customers]([CustId],[FirstName],[LastName],[DateOfBirth], [YearOfBirth],[Email])
+
+
+INSERT INTO [dbo].[Customers]([CustId],[FirstName],[LastName],[DateOfBirth], [YearOfBirth],[Email],[Country])
 VALUES
-(1, 'Amitabh', 'Bachchan', '1942-07-10', '1942', 'angry_young_man@gmail.com'),
-(2, 'Abhishek', 'Bachchan', '1976-05-06', '1976', 'abhishek@abhishekbachchan.org'),
-(3, 'Aishwarya', 'Rai', '1973-11-06', '1973', 'ash@gmail.com'),
-(4, 'Aamir', 'Khan', '1965-04-28', '1965', 'aamir@khan.com'),
-(5, 'abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com'),
-(6, 'abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com')
+(1, 'Amitabh', 'Bachchan', '1942-07-10', '1942', 'angry_young_man@gmail.com','China'),
+(2, 'Abhishek', 'Bachchan', '1976-05-06', '1976', 'abhishek@abhishekbachchan.org','China'),
+(3, 'Aishwarya', 'Rai', '1973-11-06', '1973', 'ash@gmail.com','America'),
+(4, 'Aamir', 'Khan', '1965-04-28', '1965', 'aamir@khan.com','China'),
+(5, 'abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com','China'),
+(6, 'abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com','America')
+GO
+
+INSERT INTO [dbo].[Customers_addinfo]([CustId],[Country],[City])
+VALUES
+(1, 'China', 'Zhengzhou'),
+(2, 'China', 'Shanghai'),
+(3, 'America', 'New York')
 GO
 
 -- ####### 显示当前数据，可以按照关键词进行升序或者降序排列
@@ -80,6 +100,8 @@ SELECT * FROM Customers
 -- ORDER BY DateOfBirth DESC;
 GO
 
+SELECT * FROM Customers_addinfo
+GO
 
 
 -- =========================================== 各种查询数据方法 ===========================================
@@ -152,18 +174,10 @@ GO
 -- GO
 
 
-
-
-
-
-
-
-
-
 -- =========================================== 各种更新数据方法 ===========================================
 
 
--- ####### 更新
+-- ####### 1、更新
 -- Update 2 records
 -- UPDATE Customers
 -- SET Email = 'bachchans@gmail.com'
@@ -174,7 +188,7 @@ GO
 -- SELECT * FROM Customers;
 -- GO
 
--- ####### 删除
+-- ####### 2、删除
 -- Delete a record
 -- DELETE FROM Customers
 -- WHERE DateOfBirth = '1965-04-28'
@@ -185,6 +199,43 @@ GO
 -- GO
 
 
+-- ####### 3、连接
+-- #### INNER JOIN 至少存在一个匹配时进行的匹配
+-- SELECT Customers.CustId, Customers.FirstName, Customers_addinfo.Country, Customers_addinfo.City
+-- FROM Customers
+-- INNER JOIN Customers_addinfo
+-- ON Customers.CustId=Customers_addinfo.CustId;
+-- -- ORDER BY Customers.CustId;
+-- GO
+
+
+-- #### LEFT JOIN 左表优先，null补全
+-- SELECT Customers.CustId, Customers.FirstName, Customers_addinfo.Country, Customers_addinfo.City
+-- FROM Customers
+-- LEFT JOIN Customers_addinfo
+-- ON Customers.CustId=Customers_addinfo.CustId;
+-- GO
+
+-- #### RIGHT JOIN 右表优先，null补全
+-- SELECT Customers.CustId, Customers.FirstName, Customers_addinfo.Country, Customers_addinfo.City
+-- FROM Customers
+-- RIGHT JOIN Customers_addinfo
+-- ON Customers.CustId=Customers_addinfo.CustId;
+-- GO
+
+-- #### FULL JOIN 右表优先，null补全
+-- SELECT Customers.CustId, Customers.FirstName, Customers_addinfo.Country, Customers_addinfo.City
+-- FROM Customers
+-- FULL JOIN Customers_addinfo
+-- ON Customers.CustId=Customers_addinfo.CustId;
+-- GO
+
+-- ####### 4、合并
+SELECT CustId, Country FROM Customers
+WHERE Country='China'
+UNION ALL
+SELECT CustId, Country FROM Customers_addinfo
+WHERE Country<>'China';
 
 
 -- =========================================== 各种统计数据方法 ===========================================
