@@ -231,11 +231,23 @@ GO
 -- GO
 
 -- ####### 4、合并
+-- #### UNION 只合并不相同的值，列名以前一个的列名为准
+SELECT Country FROM Customers
+UNION
+SELECT Country FROM Customers_addinfo;
+GO
+
+SELECT Country FROM Customers
+UNION ALL
+SELECT Country FROM Customers_addinfo;
+GO
+
 SELECT CustId, Country FROM Customers
 WHERE Country='China'
 UNION ALL
 SELECT CustId, Country FROM Customers_addinfo
 WHERE Country<>'China';
+GO
 
 
 -- =========================================== 各种统计数据方法 ===========================================
