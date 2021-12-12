@@ -1,6 +1,10 @@
 -- CYX: Learning SQL with SRL Server(some MySQL examples are also recorded)
 
 
+-- ###### SQL Server on mac using docker
+-- docker run -d --name sql_server_demo -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=superStrongPwd123' -p 1433:1433 mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+-- docker ps
+
 -- =========================================== 初始化数据库 ===========================================
 -- ####### 以master权限管理数据库
 USE [master]
