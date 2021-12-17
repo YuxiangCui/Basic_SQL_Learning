@@ -236,21 +236,43 @@ GO
 
 -- ####### 4、合并
 -- #### UNION 只合并不相同的值，列名以前一个的列名为准
-SELECT Country FROM Customers
-UNION
-SELECT Country FROM Customers_addinfo;
+-- SELECT Country FROM Customers
+-- UNION
+-- SELECT Country FROM Customers_addinfo;
+-- GO
+
+-- SELECT Country FROM Customers
+-- UNION ALL
+-- SELECT Country FROM Customers_addinfo;
+-- GO
+
+-- SELECT CustId, Country FROM Customers
+-- WHERE Country='China'
+-- UNION ALL
+-- SELECT CustId, Country FROM Customers_addinfo
+-- WHERE Country<>'China';
+-- GO
+
+-- ####### 5、复制插入
+-- #### SELECT INTO 复制数据到一个新的表中
+SELECT CustId, Country
+INTO  newtabel
+FROM Customers
+WHERE Country='China';
 GO
 
-SELECT Country FROM Customers
-UNION ALL
-SELECT Country FROM Customers_addinfo;
+SELECT * FROM newtabel
 GO
 
-SELECT CustId, Country FROM Customers
-WHERE Country='China'
-UNION ALL
-SELECT CustId, Country FROM Customers_addinfo
-WHERE Country<>'China';
+-- #### INSERT INTO SELECT 复制数据到一个已经存在的表中
+
+INSERT INTO newtabel
+SELECT CustId, Country
+FROM Customers
+WHERE Country='China';
+GO
+
+SELECT * FROM newtabel
 GO
 
 
