@@ -47,29 +47,75 @@ USE [cyx_testdb];
 
 -- ####### 创建示例表格
 -- Create a test table
+-- Column Name + Data Type + SQL Constriants
+-- 常用 SQL Constriants
+-- NOT NULL：非空
+-- UNIQUE：某列的每行唯一值
+-- PRIMARY KEY：非空且有唯一值，每个表都要有且仅有一个主键
+-- FOREIGN KEY：保证一个表中的数据匹配另一个表中的值的参照完整性, 要保证是一一对应的可以索引的，存在的，有unique或者primary等性质
+-- CHECK：保证列中的值符合指定的条件
+-- DEFAULT：规定没有给列赋值时的默认值
+
 CREATE TABLE [dbo].[Customers]
 (
- [CustId] [int] NOT NULL,
+--  [CustId] [int] CHECK (CustId < 100),
+-- # MySQL
+-- AUTO_INCREMENT=99 可以设置起始值
+-- # SQL Server
+ [CustId] [int] IDENTITY(1,1),
+--  [CustId] [int] IDENTITY(10,3), 可以设置起始值以及间隔值
  [FirstName] [nvarchar](50) NOT NULL,
- [LastName] [nvarchar](50) NOT NULL,
+ [LastName] [nvarchar](50),
  [DateOfBirth][date] NOT NULL,
- [YearOfBirth][int] NOT NULL,
- [Email] [nvarchar](50) NOT NULL,
- [Country] [nvarchar](50) NOT NULL,
+ [YearOfBirth][int],
+--  [YearOfBirth][int] DEFAULT 2020,
+
+-- SQL Server 语法
+ [Email] [nvarchar](50) UNIQUE,
+-- MySQL 语法
+-- [Email] [nvarchar](50) NOT NULL,
+-- UNIQUE (Email)
+-- 通用语法：并列定义多个约束或者合并定义约束，对约束进行命名
+--  [Email] [nvarchar](50) NOT NULL,
+--  CONSTRAINT Email UNIQUE (Email),
+--  CONSTRAINT uc_PersonID UNIQUE (FirstName, CustId),
+
+ [Country] [nvarchar](50) NOT NULL, 
+--  [City] [nvarchar](50) NOT NULL,
 
  PRIMARY KEY CLUSTERED ([CustId] ASC) ON [PRIMARY]
 );
 GO
+
+-- ####### 添加 or 修改 or 撤销 约束
+-- MODIFY 为 MySQL/Oracle 语法
+-- ALTER COLUMN column_name datatype constraints 为SQL Server 语法
+-- ALTER TABLE Customers
+-- ALTER COLUMN LastName [nvarchar](50) NOT NULL;
+-- GO
+
+-- 添加 UNIQUE / PRIMARY KEY / FOREIGN KEY / CHECK 约束
+-- ALTER TABLE Customers
+-- -- ADD UNIQUE (FirstName);
+-- ADD CONSTRAINT my_FirstName UNIQUE (FirstName);
+-- GO
+
+-- 删除 UNIQUE / PRIMARY KEY / FOREIGN KEY / CHECK 约束，需要知道外键的名称才可以进行删除
+-- ALTER TABLE Customers
+-- DROP CONSTRAINT my_FirstName;
+-- GO
 
 CREATE TABLE [dbo].[Customers_addinfo]
 (
- [CustId] [int] NOT NULL,
+ [CustId] [int] PRIMARY KEY,
  [Country] [nvarchar](50) NOT NULL,
  [City] [nvarchar](50) NOT NULL,
+ [Email] [nvarchar](50) FOREIGN KEY REFERENCES Customers(Email),
 
- PRIMARY KEY CLUSTERED ([CustId] ASC) ON [PRIMARY]
+--  PRIMARY KEY CLUSTERED ([CustId] ASC) ON [PRIMARY]
 );
 GO
+
 
 -- ####### 显示当前数据，仅有表头
 -- Show the current database (note that we don't have any records yet)
@@ -80,21 +126,52 @@ GO
 -- Insert sample data into table
 
 
-INSERT INTO [dbo].[Customers]([CustId],[FirstName],[LastName],[DateOfBirth], [YearOfBirth],[Email],[Country])
+-- INSERT INTO [dbo].[Customers]([CustId],[FirstName],[LastName],[DateOfBirth], [YearOfBirth],[Email],[Country])
+-- VALUES
+-- (1, 'Amitabh', 'Bachchan', '1942-07-10', '1942', 'angry_young_man@gmail.com','China'),
+-- (2, 'Abhishek', 'Bachchan', '1976-05-06', '1976', 'abhishek@abhishekbachchan.org','China'),
+-- (3, 'Aishwarya', 'Rai', '1973-11-06', '1973', 'ash@gmail.com','America'),
+-- (4, 'Aamir', 'Khan', '1965-04-28', '1965', 'aamir@khan.com','China'),
+-- (5, 'abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com','China'),
+-- (6, 'abcdE', 'xyz', '1965-04-28', '1965', 'abcde@xyz.com','America')
+-- GO
+
+
+-- 测试 AUTO INCREMENT
+INSERT INTO [dbo].[Customers]([FirstName],[LastName],[DateOfBirth], [YearOfBirth],[Email],[Country])
 VALUES
-(1, 'Amitabh', 'Bachchan', '1942-07-10', '1942', 'angry_young_man@gmail.com','China'),
-(2, 'Abhishek', 'Bachchan', '1976-05-06', '1976', 'abhishek@abhishekbachchan.org','China'),
-(3, 'Aishwarya', 'Rai', '1973-11-06', '1973', 'ash@gmail.com','America'),
-(4, 'Aamir', 'Khan', '1965-04-28', '1965', 'aamir@khan.com','China'),
-(5, 'abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com','China'),
-(6, 'abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com','America')
+('Amitabh', 'Bachchan', '1942-07-10', '1942', 'angry_young_man@gmail.com','China'),
+('Abhishek', 'Bachchan', '1976-05-06', '1976', 'abhishek@abhishekbachchan.org','China'),
+('Aishwarya', 'Rai', '1973-11-06', '1973', 'ash@gmail.com','America'),
+('Aamir', 'Khan', '1965-04-28', '1965', 'aamir@khan.com','China'),
+('abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com','China'),
+('abcdE', 'xyz', '1965-04-28', '1965', 'abcde@xyz.com','America')
 GO
 
-INSERT INTO [dbo].[Customers_addinfo]([CustId],[Country],[City])
+
+-- 测试缺省 Default 测试
+-- ALTER TABLE Customers
+-- ADD CONSTRAINT ab_c DEFAULT 1999 FOR YearOfBirth;
+-- GO
+
+-- INSERT INTO [dbo].[Customers]([CustId],[FirstName],[LastName],[DateOfBirth],[Email],[Country])
+-- VALUES
+-- (1, 'Amitabh', 'Bachchan', '1942-07-10', 'angry_young_man@gmail.com','China'),
+-- (2, 'Abhishek', 'Bachchan', '1976-05-06', 'abhishek@abhishekbachchan.org','China'),
+-- (3, 'Aishwarya', 'Rai', '1973-11-06', 'ash@gmail.com','America'),
+-- (4, 'Aamir', 'Khan', '1965-04-28', 'aamir@khan.com','China'),
+-- (5, 'abcd', 'xyz', '1965-04-28', 'abc@xyz.com','China'),
+-- (6, 'abcdE', 'xyz', '1965-04-28', 'abcde@xyz.com','America')
+-- GO
+
+
+INSERT INTO [dbo].[Customers_addinfo]([CustId],[Country],[City],[Email])
 VALUES
-(1, 'China', 'Zhengzhou'),
-(2, 'China', 'Shanghai'),
-(3, 'America', 'New York')
+(1, 'China', 'Zhengzhou', 'angry_young_man@gmail.com'),
+-- ## 因为前方选择了 FOREIGN KEY 属性，这里如果选择了插入指向表中不存在的内容，会产生冲突
+-- (1, 'China', 'Zhengzhou', 'angry@gmail.com'),
+(2, 'China', 'Shanghai', 'abhishek@abhishekbachchan.org'),
+(3, 'America', 'New York', 'ash@gmail.com')
 GO
 
 -- ####### 显示当前数据，可以按照关键词进行升序或者降序排列
@@ -132,6 +209,8 @@ GO
 -- WHERE YearOfBirth NOT BETWEEN 1000 AND 1942;
 -- WHERE DateOfBirth BETWEEN '1000-1-1' AND '1942-12-12';
 -- WHERE LastName BETWEEN 'A' AND 'H';
+-- WHERE LastName IS NULL;
+-- WHERE LastName IS NOT NULL;
 -- GO
 
 -- ####### 3、按照关键词查询不同的数据
@@ -176,6 +255,30 @@ GO
 -- ####### 6、别名
 -- SELECT CustId, CONCAT(FirstName, '. ', Lastname, ', ', DateOfBirth) AS info FROM  Customers;
 -- GO
+
+-- ####### 7、设置索引
+-- CREATE INDEX my_Index
+-- CREATE UNIQUE INDEX my_Index
+-- ON Customers (LastName)
+-- GO
+
+-- ####### 8、视图
+-- 将表格可视化
+-- 1、视图隐藏了底层的表结构，简化了数据访问操作，客户端不再需要知道底层表的结构及其之间的关系。
+-- 2、视图提供了一个统一访问数据的接口。（即可以允许用户通过视图访问数据的安全机制，而不授予用户直接访问底层表的权限）
+-- 3、从而加强了安全性，使用户只能看到视图所显示的数据。
+-- 4、视图还可以被嵌套，一个视图中可以嵌套另一个视图。
+-- CREATE VIEW [Current List] AS
+-- SELECT *
+-- FROM Customers
+-- WHERE CustId<99;
+-- GO
+
+-- SELECT * FROM [Current List]
+-- GO
+
+-- ####### 9、NULL函数
+-- ISNULL(key, n) 如果key为NULL，则返回值n
 
 
 -- =========================================== 各种更新数据方法 ===========================================
@@ -255,25 +358,44 @@ GO
 
 -- ####### 5、复制插入
 -- #### SELECT INTO 复制数据到一个新的表中
-SELECT CustId, Country
-INTO  newtabel
-FROM Customers
-WHERE Country='China';
-GO
+-- SELECT CustId, Country
+-- INTO  newtabel
+-- FROM Customers
+-- WHERE Country='China';
+-- GO
 
-SELECT * FROM newtabel
-GO
+-- SELECT * FROM newtabel
+-- GO
 
 -- #### INSERT INTO SELECT 复制数据到一个已经存在的表中
 
-INSERT INTO newtabel
-SELECT CustId, Country
-FROM Customers
-WHERE Country='China';
-GO
+-- INSERT INTO newtabel (CustId, Country)
+-- SELECT CustId, Country
+-- FROM Customers
+-- WHERE Country='China';
+-- GO
 
-SELECT * FROM newtabel
-GO
+-- SELECT * FROM newtabel
+-- GO
+
+-- ####### 6、插入 or 删除 or 清空
+
+-- 删除
+-- DROP TABLE newtabel
+-- DROP DATABASE cyx_testdb
+
+-- ALTER TABLE newtabel
+-- DROP COLUMN Country
+
+-- 插入
+-- ALTER TABLE newtabel
+-- ADD City [nvarchar](50)
+
+-- 清空
+-- TRUNCATE TABLE newtabel
+
+-- SELECT * FROM newtabel;
+-- GO
 
 
 -- =========================================== 各种统计数据方法 ===========================================
@@ -314,3 +436,13 @@ GO
 -- ####### 最小值
 -- SELECT MIN(YearOfBirth) AS Minimum FROM Customers;
 -- GO
+
+-- ####### 分组
+-- SELECT Country, SUM(Customers.YearOfBirth) AS nums
+-- FROM Customers GROUP BY Country;
+
+-- SELECT CustId, SUM(Customers.YearOfBirth) AS nums
+-- FROM Customers GROUP BY CustId;
+
+
+
