@@ -14,12 +14,20 @@ GO
 -- Dump SQL version and current DB (see multiple result sets)
 -- SELECT @@VERSION
 -- SELECT DB_NAME() as CurrentDB
--- GOtest
+-- GO
+
+-- 查询数据库状态
+-- select name,user_access,user_access_desc,
+--     snapshot_isolation_state,snapshot_isolation_state_desc,
+--     is_read_committed_snapshot_on
+-- from sys.databases
 
 -- ####### 创建不重名的新数据库
 -- Create the a test database
+
 DROP DATABASE IF EXISTS [cyx_testdb];
 GO
+
 CREATE DATABASE [cyx_testdb];
 GO
 ALTER DATABASE [cyx_testdb] SET COMPATIBILITY_LEVEL = 130;
@@ -55,6 +63,10 @@ USE [cyx_testdb];
 -- FOREIGN KEY：保证一个表中的数据匹配另一个表中的值的参照完整性, 要保证是一一对应的可以索引的，存在的，有unique或者primary等性质
 -- CHECK：保证列中的值符合指定的条件
 -- DEFAULT：规定没有给列赋值时的默认值
+
+
+DROP TABLE IF EXISTS [Customers];
+GO
 
 CREATE TABLE [dbo].[Customers]
 (
@@ -105,6 +117,9 @@ GO
 -- DROP CONSTRAINT my_FirstName;
 -- GO
 
+DROP TABLE IF EXISTS [Customers_addinfo];
+GO
+
 CREATE TABLE [dbo].[Customers_addinfo]
 (
  [CustId] [int] PRIMARY KEY,
@@ -144,8 +159,8 @@ VALUES
 ('Abhishek', 'Bachchan', '1976-05-06', '1976', 'abhishek@abhishekbachchan.org','China'),
 ('Aishwarya', 'Rai', '1973-11-06', '1973', 'ash@gmail.com','America'),
 ('Aamir', 'Khan', '1965-04-28', '1965', 'aamir@khan.com','China'),
-('abcd', 'xyz', '1965-04-28', '1965', 'abc@xyz.com','China'),
-('abcdE', 'xyz', '1965-04-28', '1965', 'abcde@xyz.com','America')
+('Abcd', 'Xyz', '1965-04-28', '1965', 'abc@xyz.com','China'),
+('Abcde', 'Xyz', '1965-04-28', '1965', 'abcde@xyz.com','America')
 GO
 
 
@@ -397,20 +412,32 @@ GO
 -- SELECT * FROM newtabel;
 -- GO
 
+-- ####### 7、修改大小写
+-- 大写 SQL Server: UPPER   SQL: UCASE
+-- SELECT CustId, UPPER(FirstName) AS UP_FirstName
+-- FROM Customers;
+-- GO
+
+-- 小写 SQL Server: LOWER   SQL: LCASE
+-- SELECT CustId, LOWER(LastName) AS LOW_LastName
+-- FROM Customers;
+-- GO
+
+
 
 -- =========================================== 各种统计数据方法 ===========================================
 
--- ####### 求和
+-- ####### 1、SUM 求和
 -- SELECT SUM(YearOfBirth) AS Total FROM Customers;
 -- GO
--- ####### 去重求和
+-- ####### 2、DISTINCT SUM 去重求和
 -- SELECT SUM(DISTINCT YearOfBirth) AS Total FROM Customers;
 -- GO
 
--- ####### 计数，非null
+-- ####### 3、COUNT 计数，非null
 -- SELECT COUNT(YearOfBirth) AS Total FROM Customers;
 -- GO
--- ####### 去重计数
+-- ####### 4、DISTINCT COUNT去重计数
 -- SELECT COUNT(DISTINCT YearOfBirth) AS Total FROM Customers;
 -- GO
 
@@ -421,7 +448,7 @@ GO
 --     ) AS Total FROM Customers;
 -- GO
 
--- ####### 平均值
+-- ####### 5、AVG 平均值
 -- SELECT AVG(YearOfBirth) AS Average FROM Customers;
 -- GO
 
@@ -429,15 +456,15 @@ GO
 -- WHERE YearOfBirth > (SELECT AVG(YearOfBirth) AS Average FROM Customers);
 -- GO
 
--- ####### 最大值
+-- ####### 6、Maximum 最大值
 -- SELECT MAX(YearOfBirth) AS Maximum FROM Customers;
 -- GO
 
--- ####### 最小值
+-- ####### 7、Minimum 最小值
 -- SELECT MIN(YearOfBirth) AS Minimum FROM Customers;
 -- GO
 
--- ####### 分组
+-- ####### 8、GROUP BY 分组
 -- SELECT Country, SUM(Customers.YearOfBirth) AS nums
 -- FROM Customers GROUP BY Country;
 
@@ -445,4 +472,66 @@ GO
 -- FROM Customers GROUP BY CustId;
 
 
+-- ####### HAVING 组合使用 WHERE 与聚合函数（avg、sum、max、min、count）
+-- SELECT Customers.Country, SUM(Customers.YearOfBirth) AS nums FROM (Customers
+-- INNER JOIN Customers_addinfo
+-- ON Customers.CustId=Customers_addinfo.CustId)
+-- GROUP BY Customers.Country
+-- HAVING SUM(Customers.YearOfBirth) > 2000;
+-- GO
+
+
+-- ####### 10、EXISTS 判断存在
+-- SELECT Customers.CustId, Customers.Country, Customers.Email
+-- FROM Customers
+-- -- WHERE EXISTS (SELECT City FROM Customers_addinfo WHERE Customers.CustId = Customers_addinfo.CustId AND City = 'Shanghai');
+-- WHERE NOT EXISTS (SELECT City FROM Customers_addinfo WHERE Customers.CustId = Customers_addinfo.CustId AND City = 'Shanghai');
+-- GO
+
+-- ####### 11、SUBSTRING 从文本字段中提取字符
+-- SQL 中是 MID， SQL Server 中是 SUBSTRING
+-- SELECT SUBSTRING(column_name,start[,length]) FROM table_name;
+-- column_name: 要提取字符的字段（必需）
+-- start: 规定开始位置（起始值是 1）（必需）
+-- length: 要返回的字符数。如果省略，则 MID() 函数返回剩余文本（可选）
+
+-- SELECT CustId, SUBSTRING(FirstName, 1, 4) AS ShortTitle
+-- FROM Customers;
+-- GO
+
+-- ####### 12、LEN 文本字段的长度 MySQL：LENGTH()
+-- SELECT LEN(FirstName) FROM Customers;
+-- GO
+
+-- ####### 13、ROUND 把数值字段舍入为指定的小数位数
+-- SELECT ROUND(column_name,decimals) FROM TABLE_NAME;
+-- SELECT ROUND(YearOfBirth, 1) FROM Customers;
+-- GO
+
+-- ####### 14、NOW 返回当前系统的日期和时间
+-- SELECT ROUND(column_name,decimals) FROM TABLE_NAME;
+-- SQL Server: getdate   SQL: NOW()
+-- SELECT getdate() AS Date_Now FROM Customers;
+-- GO
+
+
+-- ####### 15、FORMAT 对字段的显示进行格式化
+-- SELECT FORMAT(column_name,format) FROM table_name;
+-- SELECT CustId, FORMAT(getdate(), 'd','en-US') AS date
+-- SELECT CustId, FORMAT(getdate(), 'd','de-de') AS date
+-- SELECT CustId, FORMAT(getdate(), 'd','zh-cn') AS date
+-- FROM Customers;
+-- GO
+
+-- SELECT CustId, FORMAT(YearOfBirth, '#-##-#') AS date
+-- FROM Customers;
+-- GO
+
+-- SELECT CustId, FORMAT(SYSDATETIME(), 'hh\:mm') AS date
+-- SELECT CustId, FORMAT(SYSDATETIME(), 'hh\.mm') AS date
+-- SELECT CustId, FORMAT(SYSDATETIME(), 'HH\:mm') AS date
+-- SELECT CustId, FORMAT(SYSDATETIME(), 'HH\:mm tt') AS date
+-- SELECT CustId, FORMAT(SYSDATETIME(), 'HH\:mm t') AS date
+-- FROM Customers;
+-- GO
 
