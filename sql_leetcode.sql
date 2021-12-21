@@ -73,3 +73,15 @@ GO
 
 SELECT * FROM Customers_addinfo
 GO
+
+
+-- 获取第二高的数据
+-- 如果不存在第二高的薪水，那么查询应返回 null
+
+SELECT
+    (SELECT DISTINCT
+            YearOfBirth
+        FROM
+            Customers
+        ORDER BY YearOfBirth DESC
+        LIMIT 1 OFFSET 1) AS SecondHighest;
