@@ -6,7 +6,6 @@
 -- docker ps
 
 -- =========================================== 初始化数据库 ===========================================
--- ####### 以master权限管理数据库
 USE mysql;
 
 DROP DATABASE IF EXISTS cyx_testdb;
@@ -16,14 +15,14 @@ USE cyx_testdb;
 
 CREATE TABLE IF NOT EXISTS Customers
 (
-    CustId INT UNSIGNED AUTO_INCREMENT,
-    FirstName VARCHAR(50) NOT NULL,
-    LastName VARCHAR(50) NOT NULL,
-    DateOfBirth DATE NOT NULL,
-    YearOfBirth INT NOT NULL,
-    Email VARCHAR(50) UNIQUE,
-    Country VARCHAR(50) NOT NULL,
-    PRIMARY KEY (CustId)
+ CustId INT UNSIGNED AUTO_INCREMENT,
+ FirstName VARCHAR(50) NOT NULL,
+ LastName VARCHAR(50) NOT NULL,
+ DateOfBirth DATE NOT NULL,
+ YearOfBirth INT NOT NULL,
+ Email VARCHAR(50) UNIQUE,
+ Country VARCHAR(50) NOT NULL,
+ PRIMARY KEY (CustId)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS Customers_addinfo
@@ -59,13 +58,15 @@ SELECT * FROM Customers;
 SELECT * FROM Customers_addinfo;
 
 
+-- =========================================== LeetCode Examples ===========================================
+
+
 -- 175、组合两个表，保证左表完整
 
--- select FirstName, LastName, City, State
--- from Person left join Address
--- on Person.PersonId = Address.PersonId
+-- select FirstName, LastName, Customers.Country, Customers.DateOfBirth, Customers.YearOfBirth, Customers_addinfo.City, Customers_addinfo.Email
+-- from Customers left join Customers_addinfo
+-- on Customers.CustId = Customers_addinfo.CustId
 -- ;
-
 
 
 -- 176、获取第二高的数据
@@ -77,4 +78,25 @@ SELECT * FROM Customers_addinfo;
 --         FROM
 --             Customers
 --         ORDER BY YearOfBirth DESC
---         LIMIT 1 OFFSET 1) AS SecondHighest;
+--         LIMIT 1 OFFSET 1) AS SecondYoungest;
+
+
+-- 177、获取第N高的数据
+-- 如果不存在第二高的薪水，那么查询应返回 null
+-- DECLARE temp_N INT;
+
+CREATE FUNCTION getN_thYoungest(N INT) RETURNS INT DETERMINISTIC
+BEGIN
+  SET N = N - 1;
+  RETURN (
+      SELECT
+       (SELECT DISTINCT
+            YearOfBirth
+        FROM
+            Customers
+        ORDER BY YearOfBirth DESC
+        LIMIT 1 OFFSET N) AS N_thYoungest
+  );
+END;
+
+SELECT getN_thYoungest(3);
