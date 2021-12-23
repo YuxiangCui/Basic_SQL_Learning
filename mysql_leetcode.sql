@@ -85,18 +85,37 @@ SELECT * FROM Customers_addinfo;
 -- 如果不存在第二高的薪水，那么查询应返回 null
 -- DECLARE temp_N INT;
 
-CREATE FUNCTION getN_thYoungest(N INT) RETURNS INT DETERMINISTIC
-BEGIN
-  SET N = N - 1;
-  RETURN (
-      SELECT
-       (SELECT DISTINCT
-            YearOfBirth
-        FROM
-            Customers
-        ORDER BY YearOfBirth DESC
-        LIMIT 1 OFFSET N) AS N_thYoungest
-  );
-END;
+-- CREATE FUNCTION getN_thYoungest(N INT) RETURNS INT DETERMINISTIC
+-- BEGIN
+--   SET N = N - 1;
+--   RETURN (
+--       SELECT
+--        (SELECT DISTINCT
+--             YearOfBirth
+--         FROM
+--             Customers
+--         ORDER BY YearOfBirth DESC
+--         LIMIT 1 OFFSET N) AS N_thYoungest
+--   );
+-- END;
 
-SELECT getN_thYoungest(3);
+-- SELECT getN_thYoungest(3);
+
+
+-- 178、分数排名
+-- 如果两个分数相同，则两个分数排名（Rank）相同。请注意，平分后的下一个名次应该是下一个连续的整数值。换句话说，名次之间不应该有“间隔”。
+
+-- # 1
+SELECT YearOfBirth, 
+    (SELECT count(DISTINCT YearOfBirth) FROM Customers WHERE YearOfBirth >= C.YearOfBirth) AS 'Rank_1'
+FROM Customers C
+ORDER BY YearOfBirth DESC;
+
+-- # 2
+SELECT a.YearOfBirth, COUNT(DISTINCT b.YearOfBirth) AS `RANK_2`
+FROM Customers a, Customers b
+WHERE a.YearOfBirth <= b.YearOfBirth
+GROUP BY a.CustId
+ORDER BY `RANK_2`;
+
+

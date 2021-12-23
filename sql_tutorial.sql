@@ -472,7 +472,7 @@ GO
 -- FROM Customers GROUP BY CustId;
 
 
--- ####### HAVING 组合使用 WHERE 与聚合函数（avg、sum、max、min、count）
+-- ####### 9、HAVING 组合使用 WHERE 与聚合函数（avg、sum、max、min、count）
 -- SELECT Customers.Country, SUM(Customers.YearOfBirth) AS nums FROM (Customers
 -- INNER JOIN Customers_addinfo
 -- ON Customers.CustId=Customers_addinfo.CustId)
