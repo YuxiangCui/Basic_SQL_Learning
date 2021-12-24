@@ -41,6 +41,7 @@ VALUES
 ("Amitabh", "Bachchan", "1942-07-10", 1942, "angry_young_man@gmail.com", "China"),
 ("Abhishek", "Bachchan", "1976-05-06", 1976, "abhishek@abhishekbachchan.org", "China"),
 ("Aishwarya", "Rai", "1973-11-06", 1973, "ash@gmail.com", "America"),
+("Bishwarya", "Rai", "1973-11-07", 1973, "bsh@gmail.com", "America"),
 ("Aamir", "Khan", "1965-04-28", 1965, "aamir@khan.com", "China"),
 ("Abcd", "Xyz", "1965-04-28", 1965, "abc@xyz.com", "China"),
 ("Abcde", "Xyz", "1965-04-28", 1965, "abcde@xyz.com", "America");
@@ -105,17 +106,42 @@ SELECT * FROM Customers_addinfo;
 -- 178、分数排名
 -- 如果两个分数相同，则两个分数排名（Rank）相同。请注意，平分后的下一个名次应该是下一个连续的整数值。换句话说，名次之间不应该有“间隔”。
 
--- # 1
-SELECT YearOfBirth, 
-    (SELECT count(DISTINCT YearOfBirth) FROM Customers WHERE YearOfBirth >= C.YearOfBirth) AS 'Rank_1'
-FROM Customers C
-ORDER BY YearOfBirth DESC;
+-- -- # 1
+-- SELECT YearOfBirth, 
+--     (SELECT count(DISTINCT YearOfBirth) FROM Customers WHERE YearOfBirth >= C.YearOfBirth) AS 'Rank_1'
+-- FROM Customers C
+-- ORDER BY YearOfBirth DESC;
 
--- # 2
-SELECT a.YearOfBirth, COUNT(DISTINCT b.YearOfBirth) AS `RANK_2`
-FROM Customers a, Customers b
-WHERE a.YearOfBirth <= b.YearOfBirth
-GROUP BY a.CustId
-ORDER BY `RANK_2`;
+-- -- # 2
+-- SELECT a.YearOfBirth, COUNT(DISTINCT b.YearOfBirth) AS `RANK_2`
+-- FROM Customers a, Customers b
+-- WHERE a.YearOfBirth <= b.YearOfBirth
+-- GROUP BY a.CustId
+-- ORDER BY `RANK_2`;
 
+
+-- 180、连续出现的数字
+-- 编写一个 SQL 查询，查找所有至少连续出现三次的数字。返回的结果表中的数据可以按 任意顺序排列。
+
+-- := 为赋值语句，返回True，与=不同，不仅是判断
+-- @ 声明临时变量
+-- 按顺序计数每个数据连续出现的次数
+-- select YearOfBirth, 
+--     case 
+--       when @prev = YearOfBirth then @count := @count + 1
+--       when (@prev := YearOfBirth) is not null then @count := 1
+--     end as CNT
+-- from Customers, (select @prev := null,@count := null) as t
+
+-- 根据次数找到distinct的满足要求的数据
+select distinct YearOfBirth as ConsecutiveNums
+from (
+  select YearOfBirth, 
+    case 
+      when @prev = YearOfBirth then @count := @count + 1
+      when (@prev := YearOfBirth) is not null then @count := 1
+    end as CNT
+  from Customers, (select @prev := null,@count := null) as t
+) as temp
+where temp.CNT >= 3
 
