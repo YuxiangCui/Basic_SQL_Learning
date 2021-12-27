@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS Customers
  YearOfBirth INT NOT NULL,
  Email VARCHAR(50) UNIQUE,
  Country VARCHAR(50) NOT NULL,
+ BossId INT UNSIGNED,
  PRIMARY KEY (CustId)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -36,15 +37,15 @@ CREATE TABLE IF NOT EXISTS Customers_addinfo
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO Customers
-(FirstName, LastName, DateOfBirth, YearOfBirth, Email, Country)
+(FirstName, LastName, DateOfBirth, YearOfBirth, Email, Country, BossId)
 VALUES
-("Amitabh", "Bachchan", "1942-07-10", 1942, "angry_young_man@gmail.com", "China"),
-("Abhishek", "Bachchan", "1976-05-06", 1976, "abhishek@abhishekbachchan.org", "China"),
-("Aishwarya", "Rai", "1973-11-06", 1973, "ash@gmail.com", "America"),
-("Bishwarya", "Rai", "1973-11-07", 1973, "bsh@gmail.com", "America"),
-("Aamir", "Khan", "1965-04-28", 1965, "aamir@khan.com", "China"),
-("Abcd", "Xyz", "1965-04-28", 1965, "abc@xyz.com", "China"),
-("Abcde", "Xyz", "1965-04-28", 1965, "abcde@xyz.com", "America");
+("Amitabh", "Bachchan", "1942-07-10", 1942, "angry_young_man@gmail.com", "China", 4),
+("Abhishek", "Bachchan", "1976-05-06", 1976, "abhishek@abhishekbachchan.org", "China", 5),
+("Aishwarya", "Rai", "1973-11-06", 1973, "ash@gmail.com", "America", 6),
+("Bishwarya", "Rai", "1973-11-07", 1973, "bsh@gmail.com", "America", NULL),
+("Aamir", "Khan", "1965-04-28", 1965, "aamir@khan.com", "China", NULL),
+("Abcd", "Xyz", "1965-04-28", 1965, "abc@xyz.com", "China", NULL),
+("Abcde", "Xyz", "1965-04-28", 1965, "abcde@xyz.com", "America", NULL);
 
 
 INSERT INTO Customers_addinfo
@@ -134,14 +135,37 @@ SELECT * FROM Customers_addinfo;
 -- from Customers, (select @prev := null,@count := null) as t
 
 -- 根据次数找到distinct的满足要求的数据
-select distinct YearOfBirth as ConsecutiveNums
-from (
-  select YearOfBirth, 
-    case 
-      when @prev = YearOfBirth then @count := @count + 1
-      when (@prev := YearOfBirth) is not null then @count := 1
-    end as CNT
-  from Customers, (select @prev := null,@count := null) as t
-) as temp
-where temp.CNT >= 3
+-- select distinct YearOfBirth as ConsecutiveNums
+-- from (
+--   select YearOfBirth, 
+--     case 
+--       when @prev = YearOfBirth then @count := @count + 1
+--       when (@prev := YearOfBirth) is not null then @count := 1
+--     end as CNT
+--   from Customers, (select @prev := null,@count := null) as t
+-- ) as temp
+-- where temp.CNT >= 3
+
+-- ### 定义变量
+-- SET @A=TRUE;
+-- SELECT @A;
+
+
+-- 181、超过经理收入的员工
+-- 编写一个 SQL 查询，该查询可以获取收入超过他们经理的员工的姓名
+
+-- # 1
+-- select c1.FirstName as Customer
+-- from Customers c1, Customers c2
+-- where c1.BossId= c2.CustId
+-- and c1.YearOfBirth > c2.YearOfBirth
+
+-- # 2
+select c.FirstName as Customer
+from Customers c
+where YearOfBirth > (select YearOfBirth from Customers where CustId = c.BossId)
+
+
+
+
 
