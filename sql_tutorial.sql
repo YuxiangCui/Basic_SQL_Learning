@@ -132,6 +132,21 @@ CREATE TABLE [dbo].[Customers_addinfo]
 GO
 
 
+
+DROP TABLE IF EXISTS [Light];
+GO
+
+
+CREATE TABLE [dbo].[Light]
+(
+
+ [Id] [int] IDENTITY(1,1),
+ [Sources] [nvarchar](50) NOT NULL,
+ [Applications] [nvarchar](50),
+
+ PRIMARY KEY CLUSTERED ([Id] ASC) ON [PRIMARY]
+);
+
 -- ####### 显示当前数据，仅有表头
 -- Show the current database (note that we don't have any records yet)
 -- SELECT * FROM Customers;
@@ -186,8 +201,19 @@ VALUES
 -- ## 因为前方选择了 FOREIGN KEY 属性，这里如果选择了插入指向表中不存在的内容，会产生冲突
 -- (1, 'China', 'Zhengzhou', 'angry@gmail.com'),
 (2, 'China', 'Shanghai', 'abhishek@abhishekbachchan.org'),
-(3, 'America', 'New York', 'ash@gmail.com')
+(3, 'America', 'New York', 'ash@gmail.com'),
+(4, 'Russia', 'Moscow', 'ash@gmail.com')
 GO
+
+
+INSERT INTO [dbo].[Light]([Sources],[Applications])
+VALUES
+('Sun', 'Day'),
+('Moon', 'Night'),
+('You', 'Ever')
+GO
+
+
 
 -- ####### 显示当前数据，可以按照关键词进行升序或者降序排列
 -- Show the current database, (ordered by specific key, up or down)
@@ -197,6 +223,9 @@ SELECT * FROM Customers
 GO
 
 SELECT * FROM Customers_addinfo
+GO
+
+SELECT * FROM Light
 GO
 
 
@@ -363,6 +392,28 @@ GO
 -- UNION ALL
 -- SELECT Country FROM Customers_addinfo;
 -- GO
+
+-- SELECT Country AS 'Light', CustId AS 'For' FROM Customers
+-- WHERE CustId = 1 AND YearOfBirth > 1900
+-- UNION
+-- SELECT Country AS 'Light', CustId AS 'For' FROM Customers
+-- WHERE CustId = 2 AND YearOfBirth > 1900
+-- UNION
+-- SELECT Country AS 'Light', CustId AS 'For' FROM Customers
+-- WHERE CustId = 3 AND YearOfBirth > 1900;
+-- GO
+
+
+SELECT Sources AS 'My Love', Applications AS 'For' FROM Light
+WHERE Sources = 'Sun' AND Applications = 'Day'
+UNION
+SELECT Sources AS 'My Love', Applications AS 'For' FROM Light
+WHERE Sources = 'Moon' AND Applications = 'Night'
+UNION
+SELECT Sources AS 'My Love', Applications AS 'For' FROM Light
+WHERE Sources = 'You' AND Applications = 'Ever';
+GO
+
 
 -- SELECT CustId, Country FROM Customers
 -- WHERE Country='China'

@@ -161,9 +161,9 @@ SELECT * FROM Customers_addinfo;
 -- and c1.YearOfBirth > c2.YearOfBirth
 
 -- # 2
-select c.FirstName as Customer
-from Customers c
-where YearOfBirth > (select YearOfBirth from Customers where CustId = c.BossId)
+-- select c.FirstName as Customer
+-- from Customers c
+-- where YearOfBirth > (select YearOfBirth from Customers where CustId = c.BossId)
 
 
 
