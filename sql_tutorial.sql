@@ -228,6 +228,9 @@ GO
 SELECT * FROM Light
 GO
 
+SELECT Sources AS 'My Love', Applications AS 'For' FROM Light
+GO
+
 
 -- =========================================== 各种查询数据方法 ===========================================
 -- ####### 1、按照关键词查询数据
